@@ -391,6 +391,42 @@ body.debug .card, body.debug .col, body.debug .tile, body.debug .portrait{
 }
 body.debug section{outline:1px solid rgba(255,138,138,.35) !important}
 
+
+/* ---------- record ---------- */
+.record{list-style:none;margin:0;padding:0}
+.record li{
+  display:grid;grid-template-columns:80px 1fr auto;gap:24px;align-items:baseline;
+  padding:24px 0;border-top:1px solid var(--line);
+}
+.record li:last-child{border-bottom:1px solid var(--line)}
+.record i{
+  font-style:normal;font-family:var(--font-mono);font-size:11px;
+  letter-spacing:.16em;color:var(--accent);
+}
+.record h3{font-size:18px;margin-bottom:7px}
+.record p{margin:0;color:var(--muted);font-size:15px;line-height:1.55;max-width:64ch}
+.record p a{color:var(--accent-2)}
+.record .kind{
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--line-2);padding:5px 10px;
+  border-radius:999px;white-space:nowrap;
+}
+@media (max-width:700px){
+  .record li{grid-template-columns:1fr;gap:9px}
+  .record .kind{justify-self:start}
+}
+.langs{display:flex;flex-wrap:wrap;gap:10px;margin-top:38px}
+.lang{
+  display:flex;align-items:baseline;gap:10px;border:1px solid var(--line);
+  background:rgba(17,20,29,.86);border-radius:4px;padding:13px 17px;
+}
+.lang b{font-weight:600;font-size:15px}
+.lang span{
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--accent-2);
+}
+
+
 /* ---------- contact ---------- */
 .contact a.mail{
   display:inline-block;text-decoration:none;font-weight:800;letter-spacing:-0.035em;
@@ -428,6 +464,7 @@ body:not(.lite) #spot.on{opacity:1}
   position:fixed;inset:0;z-index:90;background:var(--bg);
   display:none;align-items:center;justify-content:center;
   transition:opacity .42s var(--ease), visibility .42s;
+  font-family:var(--font-mono);
 }
 body.js #intro{display:flex}
 #intro.done{opacity:0;visibility:hidden}
@@ -458,8 +495,19 @@ body.lite #intro{display:none}
   background-color:transparent;pointer-events:none;
   transition:background-color .5s var(--ease), opacity .42s var(--ease), visibility .42s;
 }
-#intro.docking .boot-id{transition:opacity .22s var(--ease), transform .7s var(--ease)}
+#intro.docking .boot-id{transition:opacity .14s var(--ease), transform .7s var(--ease)}
 #intro.docking.handoff .boot-id{opacity:0}
+#intro.docking .boot-id-name{
+  font-family:var(--font-mono);
+}
+/* .boot-id in the chain puts this above the reveal rules regardless of
+   where in the file it ends up. The zero delay is the important part:
+   the base rule delays the fade by 180ms, which is most of the flight. */
+#intro.docking .boot-id .boot-id-rule,
+#intro.docking .boot-id .boot-id-role{
+  opacity:0;
+  transition:opacity .16s var(--ease) 0s;
+}
 
 /* the real wordmark waits until the intro is done with it */
 /* Only ANDY. waits for the intro to hand it over. DEV is there the
@@ -590,6 +638,21 @@ body.cursor-on, body.cursor-on a, body.cursor-on button, body.cursor-on .chip{cu
 #fdbgInfo b{color:var(--muted);font-weight:400}
 #hudFps{cursor:pointer}
 
+/* fine on desktop, but on a phone the expanded readout climbs into the
+   hero copy, so it becomes a sheet pinned to the viewport instead */
+@media (max-width:760px){
+  body.fdbg-on .hud{
+    position:fixed;left:0;right:0;bottom:0;top:auto;
+    z-index:75;padding:14px var(--pad) calc(14px + env(safe-area-inset-bottom));
+    background:rgba(10,12,18,.94);border-top:1px solid var(--line-2);
+    backdrop-filter:blur(10px);
+  }
+  body.fdbg-on .hud > div{background:transparent;border:0;padding:0 0 8px}
+  body.fdbg-on .hud #perfRow{display:block}
+  #fgraph{width:100%;max-width:100%;height:44px}
+  #fdbgInfo{max-width:none}
+}
+
 /* ---------- the line that is only there when you look for it ---------- */
 .secret{
   margin:30px 0 0;color:transparent;
@@ -606,10 +669,14 @@ body.idle #scrim{opacity:.10 !important}
 body.idle #gl{filter:none !important}
 #idlenote{
   position:fixed;left:0;right:0;bottom:38px;z-index:40;text-align:center;
-  font-family:var(--font-mono);font-size:10px;letter-spacing:.28em;text-transform:uppercase;
-  color:#3E4557;opacity:0;pointer-events:none;transition:opacity 1.3s var(--ease);
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--muted);text-shadow:0 2px 14px rgba(10,12,18,.9);
+  opacity:0;pointer-events:none;transition:opacity 1.3s var(--ease);
 }
-body.idle #idlenote{opacity:1}
+body.idle #idlenote{opacity:.85}
+
+/* how far the page steps back. raise for a subtler effect */
+body.idle header.nav, body.idle main, body.idle footer{opacity:.07;pointer-events:none}
 
 /* ---------- portrait views ---------- */
 .portrait{cursor:pointer}
@@ -808,7 +875,7 @@ void main(){
 <!-- data-hidden keeps a scene out of the S rotation until it is
      unlocked. This one is the reward for the wordmark clicks. -->
 <script type="x-shader/x-fragment" id="shader-menger" data-name="menger" data-hidden="1"
-        data-views="steps,shaded" data-view-default="steps">
+        data-views="steps,shaded" data-view-default="shaded">
 mat2 rot(float a){ float c = cos(a), s = sin(a); return mat2(c, -s, s, c); }
 float sdBox(vec3 p, vec3 b){ vec3 q = abs(p) - b; return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0); }
 
@@ -928,6 +995,574 @@ void main(){
 }
 </script>
 
+<!-- Mandelbulb, ported from Sebastian Lague's Ray Marching project:
+     https://github.com/SebLague/Ray-Marching
+     Copyright: 2019 Sebastian Lague. Licensed under the MIT License.
+     Distance estimator from Mikael Hvidtfeldt Christensen:
+     blog.hvidtfeldts.net. -->
+<script type="x-shader/x-fragment" id="shader-bulb" data-name="mandelbulb" data-hidden="1"
+        data-views="shaded,normals,steps" data-view-default="shaded">
+
+const float DARKNESS   = 30.0;
+const float BW         = 0.0;                       /* blackAndWhite */
+const vec3  COLOUR_A   = vec3(0.54, 0.55, 1.00);    /* (0.27, 0.27, 0.50) */
+const vec3  COLOUR_B   = vec3(0.30, 0.70, 0.59);    /* was (1,0,0) */
+
+/* power animated instead of climbing forever as it did in Update() */
+float bulbPower(){ return 8.0 + 4.0 * sin(uTime * 0.10); }
+
+/* returns (escape iterations, distance) */
+vec2 sceneInfo(vec3 position, int iterLimit){
+  vec3 z = position;
+  float dr = 1.0;
+  float r = 0.0;
+  float iterations = 0.0;
+  float power = bulbPower();
+
+  for (int i = 0; i < 15; i++){
+    if (i >= iterLimit) break;
+    iterations = float(i);
+    r = length(z);
+    if (r > 2.0) break;
+    if (r < 1e-6) break;              /* guard: acos and pow blow up at 0 */
+
+    float theta = acos(z.z / r);
+    float phi = atan(z.y, z.x);       /* atan2(y,x) is atan(y,x) here */
+    dr = pow(r, power - 1.0) * power * dr + 1.0;
+
+    float zr = pow(r, power);
+    theta *= power;
+    phi *= power;
+
+    z = zr * vec3(sin(theta) * cos(phi), sin(phi) * sin(theta), cos(theta));
+    z += position;
+  }
+  return vec2(iterations, 0.5 * log(max(r, 1e-6)) * r / dr);
+}
+
+/* four taps instead of the original six. Same result, a third cheaper,
+   and this runs on someone's laptop rather than your GPU. */
+vec3 estimateNormal(vec3 p, int iterLimit){
+  vec2 e = vec2(1.0, -1.0) * 0.0008;
+  return normalize(
+    e.xyy * sceneInfo(p + e.xyy, iterLimit).y + e.yyx * sceneInfo(p + e.yyx, iterLimit).y +
+    e.yxy * sceneInfo(p + e.yxy, iterLimit).y + e.xxx * sceneInfo(p + e.xxx, iterLimit).y);
+}
+
+void main(){
+  vec2 uv = (gl_FragCoord.xy * 2.0 - uRes) / uRes.y;
+  float wide = step(1.15, uRes.x / uRes.y);
+  uv -= vec2(mix(0.0, 0.55, wide), mix(0.30, 0.0, wide));
+
+  /* budgets: full in the hero, cut hard once it is only background */
+  int steps = uBlur > 0.5 ? 40 : 100;
+  int iters = uBlur > 0.5 ? 8  : 12;
+
+  /* orbit camera, standing in for _CameraToWorld and the inverse projection */
+  float yaw = uTime * 0.045 + uPtr.x * 0.45;
+  float pitch = 0.22 + 0.30 * sin(uTime * 0.031) + uPtr.y * 0.30;
+  float dist = 2.00 + 0.22 * sin(uTime * 0.017);
+  vec3 ro = vec3(sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch)) * dist;
+  vec3 fw = normalize(-ro);
+  vec3 rt = normalize(cross(vec3(0.0, 1.0, 0.0), fw));
+  vec3 up = cross(fw, rt);
+  vec3 rd = normalize(fw * 2.05 + uv.x * rt + uv.y * up);
+
+  /* light swings around too, so the same angle is lit differently later */
+  float lt = uTime * 0.023;
+  vec3 lightDir = normalize(vec3(sin(lt) * 0.7, -0.7, cos(lt) * 0.7));
+
+  /* background gradient, same two colours as the original */
+  float sy = gl_FragCoord.y / uRes.y;
+  /*vec3 col = mix(vec3(44.0, 102.0, 85.0), vec3(16.0, 6.0, 28.0), sy) / 255.0;*/
+  vec3 col = mix(vec3(41.0, 42.0, 77.0), vec3(16.0, 6.0, 28.0), sy) / 255.0;
+
+  float rayDst = 0.0;
+  float marchSteps = 0.0;
+  bool hit = false;
+  vec3 p = ro;
+
+  for (int i = 0; i < 90; i++){
+    if (i >= steps || rayDst > 6.0) break;
+    marchSteps += 1.0;
+    vec2 info = sceneInfo(p, iters);
+    float dst = info.y;
+
+    if (dst <= 0.0012 * rayDst + 0.0007){
+      hit = true;
+      vec3 n = estimateNormal(p - rd * 0.002, iters);
+
+      if (uMode == 1){
+        col = n * 0.5 + 0.5;
+      } else if (uMode == 2){
+        float s = clamp(marchSteps / float(steps), 0.0, 1.0);
+        col = mix(vec3(0.13, 0.15, 0.30), COLOUR_B, smoothstep(0.0, 0.55, s));
+        col = mix(col, vec3(1.0, 0.54, 0.54), smoothstep(0.6, 1.0, s));
+      } else {
+        float a = clamp(dot(n * 0.5 + 0.5, -lightDir), 0.0, 1.0);
+        float b = clamp(info.x / 16.0, 0.0, 1.0);
+        col = clamp(a * COLOUR_A + b * COLOUR_B, 0.0, 1.0);
+      }
+      break;
+    }
+    p += rd * dst;
+    rayDst += dst;
+  }
+
+  if (uMode == 0 || !hit){
+    col = mix(col, vec3(1.0), BW) * (marchSteps / DARKNESS);
+  }
+  col += (fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - 0.5) / 255.0;
+  O = vec4(col, 1.0);
+}
+</script>
+
+<script type="x-shader/x-fragment" id="shader-drive" data-name="drive"
+        data-views="night,grid" data-view-default="night">
+const float SPEED   = 3.2;
+const float HILLS   = 2.4;    /* peak height. above ~1.2 the camera enters them */
+const float FLAT_IN = 1.4;    /* road stays flat until this far off centre */
+const float FLAT_OUT= 5.0;    /* full height by here */
+const vec3  MOON_HI = vec3(0.88, 0.90, 1.00);
+const vec3  MOON_LO = vec3(0.54, 0.55, 1.00);
+const vec3  GRID_C  = vec3(0.54, 0.55, 1.00);
+const vec3  HAZE_C  = vec3(0.39, 0.90, 0.77);
+
+float h21(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float n2(vec2 p){
+  vec2 i = floor(p), f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(h21(i), h21(i + vec2(1,0)), f.x),
+             mix(h21(i + vec2(0,1)), h21(i + vec2(1,1)), f.x), f.y);
+}
+/* surface height in world space, base plane at y = -1 */
+float terrain(vec2 xz){
+  float ramp = smoothstep(FLAT_IN, FLAT_OUT, abs(xz.x));
+  float h = n2(xz * vec2(0.26, 0.10)) * 0.7 + n2(xz * vec2(0.61, 0.23)) * 0.3;
+  return -1.0 + h * ramp * HILLS;
+}
+
+/* stars that drift outward and twinkle, instead of being screen locked */
+float starLayer(vec2 uv, float seed, float speed){
+  float z = fract(uTime * speed + seed);
+  vec2 g = uv * mix(20.0, 8.0, z * z) + seed * 31.0;
+  vec2 id = floor(g), f = fract(g) - 0.5;
+  float h = h21(id + seed);
+  if (h < 0.90) return 0.0;
+  vec2 off = (vec2(h21(id + 3.0), h21(id + 9.0)) - 0.5) * 0.7;
+  float tw = 0.55 + 0.45 * sin(uTime * (1.5 + 0.7 * h) + h * 40.0);
+  float fade = smoothstep(0.0, 0.18, z) * smoothstep(1.0, 0.70, z);
+  return smoothstep(0.055, 0.0, length(f - off)) * tw * fade;
+}
+
+void main(){
+  vec2 uv = (gl_FragCoord.xy * 2.0 - uRes) / uRes.y;
+  uv.y += 0.16;
+  uv.x += uPtr.x * 0.12;
+
+  vec3 ro = vec3(0.0, 0.35, uTime * SPEED);
+  vec3 rd = normalize(vec3(uv, 1.0));
+
+  /* ---- sky ---- */
+  vec3 col = mix(vec3(0.055, 0.048, 0.105), vec3(0.016, 0.020, 0.048),
+                 clamp(uv.y * 1.4, 0.0, 1.0));
+  if (uMode == 0){
+    vec2 s = uv - vec2(0.0, 0.34);
+    float d = length(s * vec2(1.0, 1.25));
+    float band = step(0.42, fract(uv.y * 26.0 + 0.5));
+    float cut = mix(1.0, band, smoothstep(0.36, 0.04, uv.y));
+    col = mix(col, mix(MOON_LO, MOON_HI, clamp(s.y * 1.8 + 0.5, 0.0, 1.0)),
+              (1.0 - smoothstep(0.30, 0.315, d)) * cut);
+    col += MOON_LO * (1.0 - smoothstep(0.30, 0.95, d)) * 0.20;
+    col += HAZE_C * (1.0 - smoothstep(0.30, 0.62, d)) * 0.06;
+  }
+  float st = starLayer(uv, 0.0, 0.010) + starLayer(uv, 0.37, 0.014) + starLayer(uv, 0.71, 0.007);
+  col += vec3(0.85, 0.88, 1.00) * st * smoothstep(0.02, 0.5, uv.y) * 0.9;
+
+  /* ---- terrain, marched so peaks can cut into the sky ---- */
+  if (rd.y < 0.25){
+    int budget = uBlur > 0.5 ? 40 : 84;
+    float t = 0.4;
+    bool hit = false;
+    for (int i = 0; i < 84; i++){
+      if (i >= budget || t > 55.0) break;
+      vec3 p = ro + rd * t;
+      if (p.y < terrain(p.xz)){ hit = true; break; }
+      t += max(0.18, t * 0.032);
+    }
+    if (hit){
+      /* two bisections to kill the stair stepping on the silhouette */
+      float lo = t - max(0.18, t * 0.032), hi = t;
+      for (int j = 0; j < 2; j++){
+        float m = (lo + hi) * 0.5;
+        vec3 pm = ro + rd * m;
+        if (pm.y < terrain(pm.xz)) hi = m; else lo = m;
+      }
+      t = hi;
+      vec3 p = ro + rd * t;
+
+      vec2 w = clamp(fwidth(p.xz), 0.0008, 0.5);
+      vec2 dd = abs(fract(p.xz + 0.5) - 0.5);
+      vec2 l = vec2(1.0) - smoothstep(vec2(0.0), w * 1.6, dd);
+      float grid = max(l.x, l.y);
+
+      float e = 0.25;
+      vec3 n = normalize(vec3(terrain(p.xz - vec2(e, 0.0)) - terrain(p.xz + vec2(e, 0.0)),
+                              2.0 * e,
+                              terrain(p.xz - vec2(0.0, e)) - terrain(p.xz + vec2(0.0, e))));
+      float fog = exp(-t * 0.055);
+      float lift = clamp((p.y + 1.0) / max(HILLS, 0.001), 0.0, 1.0);
+
+      vec3 g = mix(vec3(0.024, 0.020, 0.048), vec3(0.050, 0.032, 0.082), fog);
+      g += GRID_C * grid * fog * (uMode == 1 ? 1.6 : 1.0);
+      g += HAZE_C * grid * fog * fog * 0.35;
+      g += HAZE_C * lift * 0.16 * fog;                       /* peaks catch light */
+      g += MOON_LO * max(dot(n, normalize(vec3(0.0, 0.5, -1.0))), 0.0) * 0.06 * fog;
+      col = g;
+    }
+  }
+
+  col *= mix(0.55, 1.0, smoothstep(1.9, 0.4, length(uv * vec2(0.8, 1.0))));
+  col += (fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - 0.5) / 255.0;
+  O = vec4(col, 1.0);
+}
+</script>
+
+<script type="x-shader/x-fragment" id="shader-nebula" data-name="nebula"
+        data-views="colour,density,depth" data-view-default="colour">
+
+
+const float STAR_DENSITY = 0.90;   /* lower = more stars, 0.80 is a lot */
+const float STAR_GAIN    = 1.6;    /* brightness */
+const float STAR_DRIFT   = 0.012;  /* how fast they come at you */
+
+float hash13(vec3 p){
+  p = fract(p * 0.1031);
+  p += dot(p, p.yzx + 33.33);
+  return fract((p.x + p.y) * p.z);
+}
+
+float noise3(vec3 p){
+  vec3 i = floor(p), f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  return mix(
+    mix(mix(hash13(i), hash13(i + vec3(1,0,0)), f.x),
+        mix(hash13(i + vec3(0,1,0)), hash13(i + vec3(1,1,0)), f.x), f.y),
+    mix(mix(hash13(i + vec3(0,0,1)), hash13(i + vec3(1,0,1)), f.x),
+        mix(hash13(i + vec3(0,1,1)), hash13(i + vec3(1,1,1)), f.x), f.y), f.z);
+}
+
+float clouds(vec3 p, int oct){
+  float a = 0.5, s = 0.0;
+  for (int i = 0; i < 4; i++){
+    if (i >= oct) break;
+    s += a * noise3(p);
+    p = p * 2.07 + vec3(1.7, 0.3, 2.1);
+    a *= 0.5;
+  }
+  return s;
+}
+
+void main(){
+  vec2 uv = (gl_FragCoord.xy * 2.0 - uRes) / uRes.y;
+  float wide = step(1.15, uRes.x / uRes.y);
+  uv -= vec2(mix(0.0, 0.5, wide), mix(0.25, 0.0, wide));
+
+  vec3 ro = vec3(0.0, 0.0, uTime * 0.08);
+  vec3 rd = normalize(vec3(uv + uPtr * 0.06, 1.3));
+
+  int steps = uBlur > 0.5 ? 16 : 34;
+  int oct   = uBlur > 0.5 ? 2  : 3;
+  float stepLen = 0.12;
+
+  vec3 col = vec3(0.0);
+  float trans = 1.0;
+  float firstT = -1.0;
+
+  for (int i = 0; i < 34; i++){
+    if (i >= steps || trans < 0.02) break;
+    float tt = 0.4 + float(i) * stepLen;
+    vec3 p = ro + rd * tt;
+    float d = clouds(p * 1.15, oct) - 0.52;
+    if (d > 0.0){
+      if (firstT < 0.0) firstT = tt;
+      float dens = d * 1.9;
+      vec3 lit = mix(vec3(0.30, 0.32, 0.72), vec3(0.39, 0.90, 0.77), clamp(d * 2.6, 0.0, 1.0));
+      lit = mix(lit, vec3(1.00, 0.62, 0.72), clamp(d * d * 5.0, 0.0, 1.0));
+      col += lit * dens * trans * stepLen * 3.4;
+      trans *= 1.0 - dens * stepLen * 2.6;
+    }
+  }
+
+  float alpha = 1.0 - trans;
+
+  /* stars: three layers drifting outward, each twinkling at its own rate */
+  float st = 0.0;
+  for (int k = 0; k < 3; k++){
+    float seed = float(k) * 0.37;
+    float z = fract(uTime * STAR_DRIFT + seed);
+    vec2 g = uv * mix(26.0, 9.0, z * z) + seed * 41.0;
+    vec2 id = floor(g), f = fract(g) - 0.5;
+    float h = hash13(vec3(id, seed));
+    if (h < STAR_DENSITY) continue;
+    vec2 off = (vec2(hash13(vec3(id, 3.0)), hash13(vec3(id, 9.0))) - 0.5) * 0.7;
+    float tw = 0.5 + 0.5 * sin(uTime * (1.2 + 6.0 * h) + h * 40.0);
+    float fade = smoothstep(0.0, 0.18, z) * smoothstep(1.0, 0.70, z);
+    st += smoothstep(0.05, 0.0, length(f - off)) * tw * fade;
+  }
+
+  if (uMode == 1){
+    /* opacity only: no hue, no stars, just where the gas is thick */
+    col = vec3(smoothstep(0.02, 0.9, alpha));
+  } else if (uMode == 2){
+    /* how far in the first gas sits */
+    float z = firstT < 0.0 ? 1.0 : clamp((firstT - 0.4) / 3.4, 0.0, 1.0);
+    col = firstT < 0.0 ? vec3(0.02, 0.025, 0.05)
+                       : mix(vec3(1.00, 0.62, 0.72), vec3(0.16, 0.18, 0.45), z);
+  } else {
+    col += vec3(0.85, 0.88, 1.00) * st * trans * STAR_GAIN;
+    col += vec3(0.030, 0.035, 0.060) * trans;
+  }
+
+  col *= mix(0.5, 1.0, smoothstep(1.9, 0.35, length(uv * vec2(0.8, 1.0))));
+  col += (fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - 0.5) / 255.0;
+  O = vec4(col, 1.0);
+}
+</script>
+
+<script type="x-shader/x-fragment" id="shader-warp" data-name="warp"
+        data-views="cruise,deep" data-view-default="cruise">
+const float SPEED    = 5.0;    /* world units per second */
+const float CELL     = 1.35;    /* star spacing. smaller = far denser, costs more */
+const int   STEPS    = 30;      /* cells marched along the ray */
+const float SIZE     = 0.0022;  /* angular star radius, so screen size is constant */
+const float EXPOSURE = 0.030;   /* shutter time. this alone sets streak length */
+const float GAIN     = 2.6;
+const float FOCAL    = 1.25;
+
+const float F_CELL   = 26.0;    /* deep sky feature spacing */
+const float F_RARITY = 0.88;    /* higher = rarer */
+const float F_SIZE_MIN = 0.7;   /* world radius. distant smudges */
+const float F_SIZE_MAX = 5.0;   /* screen filling when you pass one */
+
+vec3 hash33(vec3 p){
+  p = fract(p * vec3(0.1031, 0.1030, 0.0973));
+  p += dot(p, p.yxz + 33.33);
+  return fract((p.xxy + p.yxx) * p.zyx);
+}
+float vnoise(vec3 p){
+  vec3 i = floor(p), f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  return mix(
+    mix(mix(hash33(i).x, hash33(i + vec3(1,0,0)).x, f.x),
+        mix(hash33(i + vec3(0,1,0)).x, hash33(i + vec3(1,1,0)).x, f.x), f.y),
+    mix(mix(hash33(i + vec3(0,0,1)).x, hash33(i + vec3(1,0,1)).x, f.x),
+        mix(hash33(i + vec3(0,1,1)).x, hash33(i + vec3(1,1,1)).x, f.x), f.y), f.z);
+}
+
+void main(){
+  vec2 uv = (gl_FragCoord.xy * 2.0 - uRes) / uRes.y;
+  vec3 rd = normalize(vec3(uv + uPtr * 0.06, FOCAL));
+  float camZ = uTime * SPEED;
+  float L = SPEED * EXPOSURE;          /* how far you move while the shutter is open */
+
+  vec3 col = vec3(0.008, 0.010, 0.022);
+
+  /* ---- background gas, two octaves, parallaxes slowly ---- */
+  vec3 hp = rd * 3.0 + vec3(0.0, 0.0, camZ * 0.004);
+  float haze = vnoise(hp) * 0.6 + vnoise(hp * 2.3) * 0.3;
+  haze = smoothstep(0.42, 0.95, haze);
+  col += mix(vec3(0.05, 0.06, 0.14), vec3(0.13, 0.07, 0.10), vnoise(hp * 0.7)) * haze * 0.6;
+
+  /* ---- stars: one per lattice cell, along the ray ---- */
+  for (int i = 0; i < 30; i++){
+    if (i >= STEPS) break;
+
+    float march = (float(i) + 0.5) * CELL;
+    vec3 id = floor((rd * march + vec3(0.0, 0.0, camZ)) / CELL);
+    vec3 rnd = hash33(id);
+
+    /* the star sits somewhere inside its own cell, in world space */
+    vec3 S = (id + rnd) * CELL;
+    vec3 A = S - vec3(0.0, 0.0, camZ) + vec3(0.0, 0.0, L);   /* where it was */
+    vec3 D = vec3(0.0, 0.0, -L);                              /* where it went */
+
+    /* closest approach of the ray to that short segment, solved rather
+       than sampled, which is what makes the streak smooth end to end */
+    vec3 Ap = A - rd * dot(A, rd);
+    vec3 Dp = D - rd * dot(D, rd);
+    float dd = dot(Dp, Dp);
+    float s = dd > 1e-9 ? clamp(-dot(Ap, Dp) / dd, 0.0, 1.0) : 0.0;
+
+    vec3 P = A + D * s;
+    float tz = dot(P, rd);
+    if (tz < 0.15) continue;
+
+    float ang = length(P - rd * tz) / tz;
+    float mag = 0.20 + 0.80 * rnd.z;
+    float fall = 1.0 / (1.0 + tz * tz * 0.016);
+
+    vec3 tint = mix(vec3(0.54, 0.55, 1.00), vec3(1.00, 0.88, 0.78), rnd.y);
+
+    col += tint * smoothstep(SIZE, 0.0, ang) * mag * fall * GAIN;          /* the streak */
+    col += tint * smoothstep(SIZE * 0.5, 0.0, ang) * s * mag * fall * 1.4; /* brighter head */
+  }
+
+  /* ---- deep sky objects ----
+     Cells are indexed from the camera, not from the ray, so every pixel
+     tests exactly the same set. Deriving them from rd meant neighbouring
+     pixels resolved to different cells and the boundary swept the screen
+     as a plane, worst in the centre where rd changes slowest. */
+  if (uMode >= 1){
+    vec3 camPos = vec3(0.0, 0.0, camZ);
+    vec3 home = floor(camPos / F_CELL);
+
+    for (int c = 0; c < 96; c++){
+      /* 4 x 4 x 6, biased forward: x,y span -1..2 around you, z runs
+         from one behind to four ahead */
+      vec3 o = vec3(float(c % 4) - 1.0,
+                    float((c / 4) % 4) - 1.0,
+                    float(c / 16) - 1.0);
+      vec3 id = home + o;
+
+      vec3 rnd = hash33(id + 11.0);
+      if (rnd.x < F_RARITY) continue;
+
+      vec3 A = (id + hash33(id + 3.0)) * F_CELL - camPos;
+      float dist = length(A);
+      float tz = dot(A, rd);
+      if (tz < 0.05) continue;
+
+      float radius = mix(F_SIZE_MIN, F_SIZE_MAX, rnd.y * rnd.y);
+      float angR = radius / max(tz, 0.35);
+
+      vec3 fd = A / max(dist, 1e-4);
+      vec3 ax = normalize(hash33(id + 5.0) * 2.0 - 1.0);
+      vec3 e1 = normalize(cross(fd, ax) + 1e-5);
+      vec3 e2 = cross(fd, e1);
+      vec3 off = rd - fd * dot(rd, fd);
+      vec2 q = vec2(dot(off, e1), dot(off, e2)) / max(angR, 1e-4);
+      float r = length(q);
+      if (r > 2.2) continue;
+
+      /* fade at the edge of the lattice so objects do not pop in when a
+         cell enters the window */
+      float reach = F_CELL * 3.2;
+      float fade = smoothstep(reach, reach * 0.65, dist) * smoothstep(0.0, 1.5, tz);
+
+      float kind = rnd.z;
+      if (kind < 0.45){
+        float wisp = vnoise(vec3(q * 2.4, rnd.y * 10.0)) * 0.7 + 0.3;
+        vec3 cc = mix(vec3(0.85, 0.30, 0.45), vec3(0.35, 0.45, 1.00), rnd.y);
+        col += cc * exp(-r * r * 2.6) * wisp * 0.55 * fade;
+      } else if (kind < 0.80){
+        vec2 g = vec2(q.x, q.y * 2.6);
+        float gr = length(g);
+        float arms = 0.55 + 0.45 * sin(atan(g.y, g.x) * 2.0 + log(max(gr, 0.03)) * 5.5);
+        vec3 cc = mix(vec3(1.00, 0.86, 0.70), vec3(0.70, 0.78, 1.00), rnd.y);
+        col += cc * exp(-gr * gr * 3.0) * arms * 0.5 * fade;
+        col += vec3(1.0, 0.95, 0.85) * exp(-gr * gr * 34.0) * 0.9 * fade;
+      } else {
+        col *= 1.0 - smoothstep(0.40, 0.30, r) * fade;
+        float ring = exp(-pow((r - 0.44) * 9.0, 2.0));
+        col += mix(vec3(1.0, 0.62, 0.28), vec3(0.75, 0.82, 1.0), rnd.y) * ring * 1.5 * fade;
+        col += vec3(0.35, 0.30, 0.55) * exp(-r * r * 1.6) * 0.25 * fade;
+      }
+    }
+  }
+
+  col *= mix(0.75, 1.0, smoothstep(2.2, 0.3, length(uv * vec2(0.85, 1.0))));
+  col += (fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - 0.5) / 255.0;
+  O = vec4(col, 1.0);
+}
+</script>
+
+<script type="x-shader/x-fragment" id="shader-apollo" data-name="apollonian" data-hidden="1"
+        data-views="shaded,orbit,steps" data-view-default="shaded">
+mat2 rot(float a){ float c = cos(a), s = sin(a); return mat2(c, -s, s, c); }
+
+/* Kleinian / apollonian packing by repeated sphere inversion.
+   Structure after Inigo Quilez. KSIZE controls how tight the packing is. */
+const float KSIZE = 1.12;
+vec4 orbitTrap;
+
+float map(vec3 p){
+  float scale = 1.0;
+  orbitTrap = vec4(1000.0);
+  for (int i = 0; i < 8; i++){
+    p = -1.0 + 2.0 * fract(0.5 * p + 0.5);
+    float r2 = dot(p, p);
+    orbitTrap = min(orbitTrap, vec4(abs(p), r2));
+    float k = KSIZE / max(r2, 1e-4);
+    p *= k;
+    scale *= k;
+  }
+  return 0.25 * abs(p.y) / scale;
+}
+
+vec3 calcNormal(vec3 p){
+  vec2 e = vec2(1.0, -1.0) * 0.0008;
+  return normalize(e.xyy * map(p + e.xyy) + e.yyx * map(p + e.yyx) +
+                   e.yxy * map(p + e.yxy) + e.xxx * map(p + e.xxx));
+}
+
+void main(){
+  vec2 uv = (gl_FragCoord.xy * 2.0 - uRes) / uRes.y;
+  float wide = step(1.15, uRes.x / uRes.y);
+  uv -= vec2(mix(0.0, 0.55, wide), mix(0.28, 0.0, wide));
+
+  float yaw = uTime * 0.055 - uPtr.x * 0.5;
+  float pitch = 0.28 + 0.18 * sin(uTime * 0.029) + uPtr.y * 0.25;
+  float dist = 2.30 + 0.30 * sin(uTime * 0.019);
+  vec3 ro = vec3(sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch)) * dist;
+  vec3 target = vec3(0.0, 0.75, 0.0);
+  vec3 fw = normalize(target - ro);
+  vec3 rt = normalize(cross(vec3(0.0, 1.0, 0.0), fw));
+  vec3 up = cross(fw, rt);
+  vec3 rd = normalize(fw * 1.9 + uv.x * rt + uv.y * up);
+
+  int budget = uBlur > 0.5 ? 48 : 130;
+  float t = 0.0, steps = 0.0;
+  bool hit = false;
+  vec4 trap = vec4(0.0);
+
+  for (int i = 0; i < 130; i++){
+    if (i >= budget) break;
+    steps += 1.0;
+    float d = map(ro + rd * t);
+    if (d < 0.0009 * t + 0.0005){ hit = true; trap = orbitTrap; break; }
+    if (t > 7.0) break;
+    t += d * 0.85;
+  }
+
+  vec3 col = vec3(0.028, 0.033, 0.055);
+  if (hit){
+    vec3 p = ro + rd * t;
+    vec3 n = calcNormal(p);
+    float ao = 1.0 - clamp(steps / 95.0, 0.0, 1.0);
+
+    if (uMode == 1){
+      col = clamp(vec3(trap.x, trap.y, trap.z) * 1.4, 0.0, 1.0);
+    } else if (uMode == 2){
+      float s = clamp(steps / 95.0, 0.0, 1.0);
+      col = mix(vec3(0.13, 0.15, 0.30), vec3(0.39, 0.90, 0.77), smoothstep(0.0, 0.5, s));
+      col = mix(col, vec3(1.0, 0.54, 0.54), smoothstep(0.55, 1.0, s));
+    } else {
+      vec3 l = normalize(vec3(-0.4, 0.75, -0.5));
+      float dif = max(dot(n, l), 0.0);
+      float fre = pow(1.0 - max(dot(n, -rd), 0.0), 3.0);
+      vec3 base = mix(vec3(0.06, 0.07, 0.11), vec3(0.20, 0.21, 0.30), trap.w * 2.0);
+      col = base * (0.25 + 0.75 * dif) * (0.3 + 0.7 * ao);
+      col += vec3(0.54, 0.55, 1.00) * fre * 0.9;
+      col += vec3(0.39, 0.90, 0.77) * pow(dif, 24.0) * 0.4;
+    }
+  }
+  col *= mix(0.55, 1.0, smoothstep(2.0, 0.45, length(uv * vec2(0.8, 1.0))));
+  col += (fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - 0.5) / 255.0;
+  O = vec4(col, 1.0);
+}
+</script>
+
 <header class="nav">
   <div class="wrap nav-in">
     <a class="brand" href="#top"><span class="b-head">ANDY<span class="b-dot">.</span></span><span class="b-tail">DEV</span></a>
@@ -936,6 +1571,7 @@ void main(){
       <a href="#stack">Stack</a>
       <a href="#about">About</a>
       <a href="#beyond">Beyond code</a>
+      <a href="#record">Record</a>
       <a href="#contact">Contact</a>
     </nav>
     <button class="toggle" id="liteBtn" aria-pressed="false" title="Switch to the light payload version (keyboard: L)">
@@ -1088,6 +1724,57 @@ void main(){
       <div class="tile rv"><span class="ix">04</span><h3>DIY builds</h3><p>If it can be made instead of bought, I would rather make it. Tools, fixtures, parts, furniture.</p></div>
       <div class="tile rv"><span class="ix">05</span><h3>Training</h3><p>Regular strength work. It is the same loop as programming: measure, progress, repeat, stay consistent when it is boring.</p></div>
       <div class="tile rv"><span class="ix">06</span><h3>Music and the home lab</h3><p>Music while I work, and a server rack in progress: NAS, automation, and backups I control end to end.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RECORD ============ -->
+<section id="record">
+  <div class="wrap">
+    <div class="eyebrow rv"><b>Record</b> <span>things with a date on them</span></div>
+    <h2 class="rv" style="margin-bottom:18px">Recognition and credentials</h2>
+    <p class="lead rv" style="margin-bottom:36px">
+      The parts that were reviewed by someone other than me.
+    </p>
+
+    <ul class="record">
+      <!-- copy one li block to add another entry, newest at the top -->
+      <li class="rv">
+        <i>2026</i>
+        <div>
+          <h3>Poster, Eurographics 2026</h3>
+          <p>
+            TODO: one sentence on the thesis, one on the result. Name the technique
+            and the number that made it worth showing, for example a frame time or a
+            quality comparison. Link the poster PDF if you have it.
+          </p>
+        </div>
+        <span class="kind">Research</span>
+      </li>
+
+      <li class="rv">
+        <i>YEAR</i>
+        <div>
+          <h3>Degree, institution</h3>
+          <p>TODO: field, thesis title, anything worth a line.</p>
+        </div>
+        <span class="kind">Education</span>
+      </li>
+
+      <li class="rv">
+        <i>YEAR</i>
+        <div>
+          <h3>Certification or award</h3>
+          <p>TODO: what it was and who issued it.</p>
+        </div>
+        <span class="kind">Credential</span>
+      </li>
+    </ul>
+
+    <div class="langs">
+      <div class="lang rv"><b>Greek</b> <span>Native</span></div>
+      <div class="lang rv"><b>English</b> <span>C2</span></div>
+      <div class="lang rv"><b>LANGUAGE</b> <span>LEVEL</span></div>
     </div>
   </div>
 </section>
@@ -1785,7 +2472,7 @@ var secmark = document.getElementById("secmark");
 var navLinks = document.querySelectorAll(".nav-links a");
 var marked = "", markTimer = 0;
 
-var SECTION_IDS = ["work", "stack", "about", "beyond", "contact"];
+var SECTION_IDS = ["work", "stack", "about", "beyond", "record", "contact"];
 var sectionEls = [];
 for (var si = 0; si < SECTION_IDS.length; si++){
   var el = document.getElementById(SECTION_IDS[si]);
@@ -1956,12 +2643,38 @@ var bootEls = {
   sh: document.getElementById("bootSh"),
   fr: document.getElementById("bootFr")
 };
-var INTRO_MIN = 520;    /* never flash by faster than this */
-var INTRO_HOLD = 1050;  /* how long the name owns the screen */
-var INTRO_MAX = 2600;   /* failsafe, ends the intro regardless */
+var INTRO_MIN = 720;    /* never flash by faster than this */
+var INTRO_HOLD = 1550;  /* how long the name owns the screen */
+var INTRO_MAX = 3400;   /* failsafe, ends the intro regardless */
 var bootCount = 0, introOver = false, introStart = performance.now();
 
+/* ?slow or ?slow=3 stretches the boot readout so the intro can actually
+   be watched. Milestones still fire on real events, they are just held
+   back, and the failsafe is scaled with them so it cannot cut in early. */
+var SLOW = 0;
+try {
+  var sp = new URL(window.location.href).searchParams.get("slow");
+  if (sp !== null) SLOW = Math.max(1, parseFloat(sp) || 3);
+} catch (err) { SLOW = 0; }
+if (SLOW){
+  INTRO_MIN = 900 * SLOW;
+  INTRO_MAX = 4000 * SLOW;
+}
+
 function bootMark(key, value){
+  var el = bootEls[key];
+  if (!el || el.classList.contains("ok")) return;
+
+  if (SLOW){
+    /* stagger the three lines instead of letting them all land at once */
+    var order = key === "ctx" ? 0 : (key === "sh" ? 1 : 2);
+    setTimeout(function(){ bootMark2(key, value); }, order * 600 * SLOW);
+    return;
+  }
+  bootMark2(key, value);
+}
+
+function bootMark2(key, value){
   var el = bootEls[key];
   if (!el || el.classList.contains("ok")) return;
   el.classList.add("ok");
@@ -1971,7 +2684,7 @@ function bootMark(key, value){
   if (bootCount >= 3) endIntro(false);
 }
 
-var DOCK_CLEAR = 190;   /* rule and role fade out before anything moves */
+var DOCK_CLEAR = 240;   /* rule and role fade out before anything moves */
 var DOCK_MS = 700;      /* the flight itself, matches the css transition */
 
 function finishIntro(){
@@ -1985,36 +2698,43 @@ function finishIntro(){
    centres meet exactly whatever the screen size. Returns false if there
    is nothing sensible to fly to, and the caller falls back to fading. */
 function dockName(){
-  /* Target the ANDY. half of the wordmark, not the whole thing, so the
-     flying name lands on the slot it is actually replacing. */
   var target = document.querySelector(".brand .b-head");
   var idEl = document.querySelector(".boot-id");
   var nameEl = document.querySelector(".boot-id-name");
   if (!target || !idEl || !nameEl) return false;
 
-  var br = target.getBoundingClientRect();
-  var nm = nameEl.getBoundingClientRect();
-  var id = idEl.getBoundingClientRect();
-  if (!br.height || !nm.height || !br.width) return false;
-
-  /* Two fonts, so match on width rather than height: the whole word
-     ends up the right length, which is what the eye checks. */
-  var k = br.width / nm.width;
-  if (!isFinite(k) || k < 0.03 || k > 1.5) return false;
-  var ox = nm.left - id.left;
-  var oy = (nm.top + nm.height / 2) - id.top;
-  var tx = br.left - nm.left;
-  var ty = (br.top + br.height / 2) - (nm.top + nm.height / 2);
-
-  /* Clear the rule and the role first. They live inside the container
-     that is about to move, so they have to be gone before it does. */
   intro.classList.add("docking");
-  setTimeout(function(){
+
+  /* The mono metrics have to be real before anything is measured, or k
+     is computed against the fallback face and the landing corrects
+     itself at the end of the flight. */
+  var go = function(){
+    void idEl.offsetWidth;
+
+    var br = target.getBoundingClientRect();
+    var nm = nameEl.getBoundingClientRect();
+    var id = idEl.getBoundingClientRect();
+    if (!br.width || !nm.width) return;
+
+    var k = br.width / nm.width;
+    if (!isFinite(k) || k < 0.03 || k > 1.5) return;
+
+    var ox = nm.left - id.left;
+    var oy = (nm.top + nm.height / 2) - id.top;
+    var tx = br.left - nm.left;
+    var ty = (br.top + br.height / 2) - (nm.top + nm.height / 2);
+
     idEl.style.transformOrigin = ox + "px " + oy + "px";
     void idEl.offsetWidth;
     idEl.style.transform =
       "translate(-50%, -50%) translate(" + tx.toFixed(1) + "px, " + ty.toFixed(1) + "px) scale(" + k.toFixed(4) + ")";
-  }, DOCK_CLEAR);
+  };
+
+  if (document.fonts && document.fonts.ready){
+    document.fonts.ready.then(function(){ setTimeout(go, DOCK_CLEAR); });
+  } else {
+    setTimeout(go, DOCK_CLEAR);
+  }
   return true;
 }
 
@@ -2028,11 +2748,16 @@ function endIntro(skipped){
     setTimeout(function(){
       if (INTRO_OUTRO === "dock" && dockName()){
         var total = DOCK_CLEAR + DOCK_MS;
+        /* wait for the flight to actually land, then swap. The real
+           wordmark comes up first so there is never a gap, and the
+           flying copy goes out after it. */
+        setTimeout(function(){
+          document.body.classList.add("brand-on");
+        }, total);
         setTimeout(function(){
           intro.classList.add("handoff");
-          document.body.classList.add("brand-on");
-        }, total - 230);
-        setTimeout(finishIntro, total);
+        }, total + 90);
+        setTimeout(finishIntro, total + 260);
       } else {
         finishIntro();
       }
@@ -2109,7 +2834,7 @@ function unlockHidden(){
   if (unlocked){ selectScene(i); egg("already unlocked . press s to cycle"); return; }
   unlocked = true;
   selectScene(i);
-  egg("hidden scene unlocked: " + scenes[i].name + " . it joins the s rotation");
+  egg("hidden scenes unlocked. they join the shader rotation");
   findEgg("scene", true);
 }
 
@@ -2349,6 +3074,7 @@ if (hudFps){
     if (!glReady) return;
     fdbgOn = !fdbgOn;
     fdbg.classList.toggle("on", fdbgOn);
+    document.body.classList.toggle("fdbg-on", fdbgOn);
     if (fdbgOn){
       try {
         var ext = gl.getExtension("WEBGL_debug_renderer_info");

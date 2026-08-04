@@ -302,6 +302,14 @@ body:not(.lite) .card:hover{transform:translateY(-3px)}
   color:var(--accent);text-decoration:none;padding-top:14px;
 }
 .links a:hover{color:#B4B6FF;text-decoration:underline;text-underline-offset:4px}
+.links .locked{
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:#575E75;padding-top:14px;display:inline-flex;align-items:center;gap:7px;cursor:default;
+}
+.links .locked::before{
+  content:"";width:9px;height:9px;border:1px solid #575E75;border-radius:1px;
+  border-top-width:3px;flex:none;
+}
 
 /* ---------- stack ---------- */
 .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
@@ -425,6 +433,8 @@ body.debug section{outline:1px solid rgba(255,138,138,.35) !important}
   font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;
   text-transform:uppercase;color:var(--accent-2);
 }
+.record .links{margin-top:12px;padding-top:0;border-top:0}
+.record .links a{padding-top:0}
 
 
 /* ---------- contact ---------- */
@@ -1595,8 +1605,8 @@ void main(){
     </div>
     <h1>I care about what happens <em>between the draw call and the frame you see.</em></h1>
     <p class="lead">
-      Real time graphics, engines, and the games and tools I build with them. Vulkan and OpenGL for the low level work,
-      Unreal and Godot for shipping, C#, Rust, Python and C++ for everything in between.
+      Real time graphics, game engines, programming, and the games and tools I build with them. Vulkan and OpenGL for the low level work,
+      Godot and Unreal for shipping, C#, Rust, Python and C++ for everything in between.
     </p>
     <div class="cta">
       <a class="btn primary" href="#work">See the work</a>
@@ -1643,8 +1653,7 @@ void main(){
         <ul>
           <li><b>Vulkan</b> pipelines, descriptor sets, synchronisation</li>
           <li><b>OpenGL</b> for fast iteration and teaching myself new techniques</li>
-          <li><b>GLSL and HLSL</b> lighting, post processing, compute</li>
-          <li><b>Unreal Engine</b> gameplay and material work</li>
+          <li><b>Shaders</b> lighting, post processing, compute</li>
           <li><b>Godot</b> my main engine for solo projects</li>
         </ul>
       </div>
@@ -1663,11 +1672,10 @@ void main(){
         <h3>Also useful to a team</h3>
         <div class="sub">The parts that are not writing code.</div>
         <ul>
-          <li><b>Bug hunting</b> in games and apps, I find the edge cases other people walk past</li>
-          <li><b>Repro and reporting</b> clear steps, logs, minimal cases</li>
+          <li><b>Bug hunting</b> I find the edge cases other people walk past</li>
+          <li><b>Github</b> clear commits, logs, minimal cases</li>
           <li><b>Self direction</b> everything here was scoped and finished alone</li>
-          <li><b>Linux and homelab</b> servers, storage, backups, automation</li>
-          <li><b>Art adjacent</b> I draw, so I can talk to artists in their terms</li>
+          <li><b>Art</b> I draw, so I can talk to artists directly</li>
         </ul>
       </div>
     </div>
@@ -1702,7 +1710,7 @@ void main(){
           <li><i>Learning</i> <span>Vulkan compute and modern render graph design</span></li>
           <li><i>Planning</i> <span>A home lab rack: custom NAS, backups, home automation</span></li>
           <li><i>Open to</i> <span>Junior and mid graphics, gameplay, tools or QA roles</span></li>
-          <li><i>Based in</i> <span>Greece, EU, comfortable remote</span></li>
+          <li><i>Based in</i> <span>Greece, EU, remote or relocate</span></li>
         </ul>
       </aside>
     </div>
@@ -1719,11 +1727,11 @@ void main(){
     </p>
     <div class="tiles">
       <div class="tile rv"><span class="ix">01</span><h3>Breaking software on purpose</h3><p>I am the person who tries the input nobody planned for. Games and apps both. Good bug reports are a skill, not luck.</p></div>
-      <div class="tile rv"><span class="ix">02</span><h3>Drawing</h3><p>Traditional and digital. It keeps my eye honest about composition, silhouette and colour, which shows up in shader work more than you would expect.</p></div>
-      <div class="tile rv"><span class="ix">03</span><h3>Reading</h3><p>Fiction and technical, in parallel. Most of my project ideas start in a book.</p></div>
+      <div class="tile rv"><span class="ix">02</span><h3>Drawing</h3><p>Traditional and digital. It keeps my eye honest about composition, silhouette, colour, and art direction, which shows up in my projects more than you would expect.</p></div>
+      <div class="tile rv"><span class="ix">03</span><h3>Reading</h3><p>Fiction and technical, in parallel. Most of my inspiration and game ideas start in a book.</p></div>
       <div class="tile rv"><span class="ix">04</span><h3>DIY builds</h3><p>If it can be made instead of bought, I would rather make it. Tools, fixtures, parts, furniture.</p></div>
       <div class="tile rv"><span class="ix">05</span><h3>Training</h3><p>Regular strength work. It is the same loop as programming: measure, progress, repeat, stay consistent when it is boring.</p></div>
-      <div class="tile rv"><span class="ix">06</span><h3>Music and the home lab</h3><p>Music while I work, and a server rack in progress: NAS, automation, and backups I control end to end.</p></div>
+      <div class="tile rv"><span class="ix">06</span><h3>Music</h3><p>Music while I work, and some Guitar and Piano studies at the end of the day to relax.</p></div>
     </div>
   </div>
 </section>
@@ -1742,39 +1750,36 @@ void main(){
       <li class="rv">
         <i>2026</i>
         <div>
-          <h3>Poster, Eurographics 2026</h3>
+          <h3>Poster from Thesis, Eurographics 2026</h3>
           <p>
-            TODO: one sentence on the thesis, one on the result. Name the technique
-            and the number that made it worth showing, for example a frame time or a
-            quality comparison. Link the poster PDF if you have it.
+            This Poster was derived from my Diploma Thesis: an automated learning-based strategy for computing light probe layouts efficiently 
+            under varied illumination conditions. A neural network model estimates the relative contribution of candidate probes, 
+            enabling the rapid construction of a compact configuration that maintains the scene's indirect lighting distribution. 
+            Evaluations indicate that the method achieves substantial speedups over conventional placement methods without compromises.
+            <div class="links">            
+              <a href="https://eg2026.github.io/program/?type=Poster#full-program-item-poster-wednesday-1530-1600-poster-q--a:~:text=Deep%20Illumination%E2%80%93Guided%20Light%20Probe%20Placement" target="_blank" rel="noopener">Check it out</a>
+              <a href="https://cgrg.eu/publications/deep-illuminationguided-light-probe-placement" target="_blank" rel="noopener">Read the poster</a>
+              <a href="https://github.com/AndreasTar/LPNN" target="_blank" rel="noopener">Browse the Thesis</a>
+            </div>
           </p>
         </div>
         <span class="kind">Research</span>
       </li>
 
       <li class="rv">
-        <i>YEAR</i>
+        <i>2019-2026</i>
         <div>
-          <h3>Degree, institution</h3>
-          <p>TODO: field, thesis title, anything worth a line.</p>
+          <h3>University of Ioannina, Greece</h3>
+          <p>Integrated Masters degree in Computer Science & Engineering.</p>
         </div>
         <span class="kind">Education</span>
       </li>
 
-      <li class="rv">
-        <i>YEAR</i>
-        <div>
-          <h3>Certification or award</h3>
-          <p>TODO: what it was and who issued it.</p>
-        </div>
-        <span class="kind">Credential</span>
-      </li>
-    </ul>
-
     <div class="langs">
       <div class="lang rv"><b>Greek</b> <span>Native</span></div>
-      <div class="lang rv"><b>English</b> <span>C2</span></div>
-      <div class="lang rv"><b>LANGUAGE</b> <span>LEVEL</span></div>
+      <div class="lang rv"><b>English</b> <span>Fluent</span></div>
+      <div class="lang rv"><b>German</b> <span>Beginner</span></div>
+      <div class="lang rv"><b>Norwegian</b> <span>Beginner</span></div>
     </div>
   </div>
 </section>
@@ -1785,7 +1790,7 @@ void main(){
     <div class="eyebrow rv"><b>Contact</b> <span>open to work</span></div>
     <div class="contact-grid">
       <div>
-        <h2 class="rv" style="margin-bottom:6px">Let's talk</h2>
+        <h2 class="rv" style="margin-bottom:6px">Let's talk!</h2>
         <a class="mail rv" href="mailto:andreas.tarasidis@gmail.com">andreas.tarasidis@gmail.com</a>
         <div class="social rv">
           <a class="btn" href="https://github.com/AndreasTar" target="_blank" rel="noopener">GitHub</a>
@@ -1801,7 +1806,7 @@ void main(){
         <figcaption id="portraitCap">portrait.jpg</figcaption>
       </figure>
     </div>
-    <p class="secret" id="secret">you selected the whole page looking for something. that is exactly the instinct i hire for. mention this line in your first message.</p>
+    <p class="secret" id="secret">You found me! That is exactly the 'check everything' instinct I also possess. Mention 'debug' in your first message.</p>
   </div>
 </section>
 
@@ -1829,6 +1834,7 @@ void main(){
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <filter id="edgeflt" color-interpolation-filters="sRGB">
     <feColorMatrix type="saturate" values="0" />
+    <feGaussianBlur stdDeviation="1.1" />
     <feConvolveMatrix order="3" preserveAlpha="true" divisor="1"
       kernelMatrix="0 -1 0  -1 4 -1  0 -1 0" />
     <feComponentTransfer>
@@ -1918,63 +1924,66 @@ var SWAP_FADE = 400;   /* ms of the cross fade, matches the css on #snap */
    ============================================================ */
 var PROJECTS = [
   {
-    title: "Vulkan renderer",
+    title: "Voxel Graphics Engine",
     state: "building",
-    tags: ["graphics"],
-    blurb: "A forward plus renderer written from scratch to understand the API properly instead of through an engine wrapper.",
-    note: "Hard part: getting synchronisation and descriptor management right without a validation layer screaming at me.",
-    tech: ["C++", "Vulkan", "GLSL"],
-    repo: "https://github.com/AndreasTar/REPO",
+    tags: ["graphics", "games", "systems"],
+    blurb: "A voxel graphics engine written using Bevy in Rust to understand game and engine architecture properly.",
+    note: "Hard part: understanding the underlying systems and optimizing performance, while also making a fun game and UX.",
+    tech: ["Rust", "Bevy", "GLSL"],
+    private: true,
+    repo: "",
     live: ""
   },
   {
     title: "Godot game project",
     state: "building",
     tags: ["games"],
-    blurb: "My main solo project. Design, code, art direction and testing, all handled alone.",
+    blurb: "My main solo GameDev project. Design, code, art direction and testing, all handled alone.",
     note: "Hard part: scoping it so a single person can actually finish it.",
     tech: ["Godot", "C#", "GDScript"],
-    repo: "https://github.com/AndreasTar/REPO",
+    private: true,
+    repo: "",
     live: ""
   },
   {
     title: "Real time shader studies",
     state: "shipped",
     tags: ["graphics"],
-    blurb: "A collection of lighting, post processing and procedural shaders, each one a small self contained study.",
-    note: "Hard part: keeping every effect under budget on integrated graphics.",
-    tech: ["OpenGL", "GLSL", "C++"],
-    repo: "https://github.com/AndreasTar/REPO",
+    blurb: "A collection of lighting and procedural shaders, each one a small self contained study. All present in this website",
+    note: "Hard part: keeping every effect under budget on integrated graphics. Find the hidden 'Easter Eggs' in the site for bonus shaders ;)",
+    tech: ["WebGL2", "GLSL", "JavaScript"],
+    repo: "https://andreastar.github.io/",
     live: ""
   },
   {
-    title: "Desktop tool",
-    state: "shipped",
+    title: "Rust Desktop toolbox",
+    state: "building",
     tags: ["apps"],
-    blurb: "A desktop app I built to solve a problem in my own workflow, then cleaned up so other people could use it.",
-    note: "Hard part: making it feel instant on cold start.",
-    tech: ["C#", ".NET", "Avalonia"],
-    repo: "https://github.com/AndreasTar/REPO",
-    live: ""
-  },
-  {
-    title: "Rust CLI utility",
-    state: "shipped",
-    tags: ["apps", "systems"],
-    blurb: "A small fast command line tool. Single binary, no runtime, does one thing properly.",
-    note: "Hard part: error handling that is actually useful to whoever runs it.",
-    tech: ["Rust"],
+    blurb: "A desktop app to solve problems in my own workflow: arbitrary number converters, file converters, and more.",
+    note: "Hard part: connecting everything together in a way that is easy to use and maintain, under a single language.",
+    tech: ["Rust", "Slint"],
     repo: "https://github.com/AndreasTar/Luna",
     live: ""
   },
   {
+    title: "Image to ASCII Art",
+    state: "shipped",
+    tags: ["apps"],
+    blurb: "A CLI app to convert any image file into ASCII art, with options for character sets, output size, colored ASCII and more.",
+    note: "Hard part: making the system and converters work with various image formats and outputs, efficiently.",
+    tech: ["Python", "Numpy", "Pillow", "SVG.py"],
+    repo: "https://github.com/AndreasTar/Image_2_ASCII",
+    live: ""
+  },
+  {
     title: "Home lab and custom NAS",
-    state: "building",
+    state: "prototype",
     tags: ["systems"],
     blurb: "A server rack for home automation, media and backups, with storage and access control I designed myself.",
     note: "Hard part: encryption and per user permissions without making the thing unusable day to day.",
     tech: ["Linux", "Python", "ZFS"],
-    repo: "https://github.com/AndreasTar/REPO",
+    private: true,
+    repo: "",
     live: ""
   }
 ];
@@ -2005,7 +2014,11 @@ var activeFilter = "all";
 function cardHTML(p){
   var tech = p.tech.map(function(t){ return "<span>" + esc(t) + "</span>"; }).join("");
   var links = "";
-  if (p.repo) links += '<a href="' + esc(p.repo) + '" target="_blank" rel="noopener">Source</a>';
+  if (p.private){
+    links += '<span class="locked" title="Source is private. Happy to walk through it on request.">Private repo</span>';
+  } else if (p.repo){
+    links += '<a href="' + esc(p.repo) + '" target="_blank" rel="noopener">Source</a>';
+  }
   if (p.live) links += '<a href="' + esc(p.live) + '" target="_blank" rel="noopener">Live</a>';
   return '' +
     '<article class="card rv" data-tags="' + esc(p.tags.join(" ")) + '">' +
@@ -2784,7 +2797,7 @@ function motionOk(){
      rare portrait swap, wordmark unlock, konami debug draw,
      a note in the console for anyone who opens devtools, etc.
    ============================================================ */
-var PORTRAIT = "portrait.jpg";
+var PORTRAIT = "portrait.png";
 var PORTRAIT_RARE = ["portrait-ascii.png", "portrait-ascii-color.png"];
 var RARE_ODDS = 12;  /* 1 in 12 page loads */
 var RARE_CAPTION = "portrait.jpg  //  rare drop";
